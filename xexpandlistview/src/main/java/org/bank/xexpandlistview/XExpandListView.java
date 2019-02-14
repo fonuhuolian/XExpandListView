@@ -44,8 +44,6 @@ public class XExpandListView extends ExpandableListView implements AbsListView.O
 
     private int mHeaderViewHeight;
 
-    private int headerViewNowPos;
-
     public void setHeaderView(View view) {
         mHeaderView = view;
         LayoutParams lp = new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
@@ -56,24 +54,6 @@ public class XExpandListView extends ExpandableListView implements AbsListView.O
         }
 
         requestLayout();
-    }
-
-    public void setOnHeaderViewClickListener(final HoverClickListener listener) {
-
-        if (mHeaderView == null)
-            return;
-
-        mHeaderView.setClickable(true);
-
-        mHeaderView.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                if (mAdapter != null && listener != null) {
-                    listener.click(headerViewNowPos);
-                }
-            }
-        });
     }
 
     private void registerListener() {
@@ -133,7 +113,6 @@ public class XExpandListView extends ExpandableListView implements AbsListView.O
 
             case HoverAdapter.PINNED_HEADER_VISIBLE: {
                 mAdapter.updateHeader(mHeaderView, groupPosition, childPosition, MAX_ALPHA);
-                headerViewNowPos = groupPosition;
 
                 if (mHeaderView.getTop() != 0) {
                     mHeaderView.layout(0, 0, mHeaderViewWidth, mHeaderViewHeight);
@@ -164,8 +143,6 @@ public class XExpandListView extends ExpandableListView implements AbsListView.O
                 }
 
                 mAdapter.updateHeader(mHeaderView, groupPosition, childPosition, alpha);
-
-                headerViewNowPos = groupPosition;
 
                 if (mHeaderView.getTop() != yOffset) {
                     mHeaderView.layout(0, yOffset, mHeaderViewWidth, mHeaderViewHeight + yOffset);
@@ -244,11 +221,6 @@ public class XExpandListView extends ExpandableListView implements AbsListView.O
          * @param alpha
          */
         void updateHeader(View header, int groupPosition, int childPosition, int alpha);
-    }
-
-
-    public interface HoverClickListener {
-        void click(int groupPosition);
     }
 }
 
