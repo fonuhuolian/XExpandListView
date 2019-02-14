@@ -67,6 +67,10 @@ public abstract class BaseXExpandableListAdapter<T> extends BaseExpandableListAd
         return data;
     }
 
+    public Context getmContext() {
+        return mContext;
+    }
+
     public void clearData() {
         data.clear();
         notifyDataSetChanged();
