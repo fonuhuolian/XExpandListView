@@ -4,8 +4,6 @@ import android.content.Context;
 import android.widget.BaseExpandableListAdapter;
 import android.widget.ExpandableListView;
 
-import org.bank.xexpandlistview.XExpandListView;
-
 import java.util.ArrayList;
 import java.util.List;
 
