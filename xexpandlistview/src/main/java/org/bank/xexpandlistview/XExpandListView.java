@@ -64,7 +64,7 @@ public class XExpandListView extends ExpandableListView implements AbsListView.O
             @Override
             public void onClick(View v) {
 
-                if (mAdapter == null && listener != null) {
+                if (mAdapter != null && listener != null) {
                     listener.click(headerViewNowPos);
                 }
             }
