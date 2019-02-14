@@ -60,6 +60,11 @@ public class XExpandListView extends ExpandableListView implements AbsListView.O
 
     public void setOnHeaderViewClickListener(final HoverClickListener listener) {
 
+        if (mHeaderView == null)
+            return;
+
+        mHeaderView.setClickable(true);
+
         mHeaderView.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
