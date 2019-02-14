@@ -66,4 +66,14 @@ public abstract class BaseXExpandableListAdapter<T> extends BaseExpandableListAd
     public List<T> getData() {
         return data;
     }
+
+    public void clearData() {
+        data.clear();
+        notifyDataSetChanged();
+    }
+
+    public void addData(List<T> d) {
+        data.addAll(d);
+        notifyDataSetChanged();
+    }
 }
