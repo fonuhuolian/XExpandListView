@@ -63,4 +63,7 @@ public abstract class BaseXExpandableListAdapter<T> extends BaseExpandableListAd
         }
     }
 
+    public List<T> getData() {
+        return data;
+    }
 }
