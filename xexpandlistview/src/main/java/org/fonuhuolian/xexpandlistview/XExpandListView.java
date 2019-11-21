@@ -1,13 +1,19 @@
 package org.fonuhuolian.xexpandlistview;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Canvas;
+import android.graphics.Rect;
 import android.util.AttributeSet;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.ExpandableListAdapter;
 import android.widget.ExpandableListView;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class XExpandListView extends ExpandableListView implements AbsListView.OnScrollListener {
 
@@ -44,8 +50,20 @@ public class XExpandListView extends ExpandableListView implements AbsListView.O
 
     private int mHeaderViewHeight;
 
+    private List<View> headerClickViews = new ArrayList<>();
+    // 当前头布局的坐标
+    private int mGroupPos;
+
+    private OnHoverClickListener listener;
+
     public void setHeaderView(View view) {
+        setHeaderView(view, null);
+    }
+
+    public void setHeaderView(View view, OnHoverClickListener listener) {
+
         mHeaderView = view;
+
         LayoutParams lp = new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         view.setLayoutParams(lp);
 
@@ -54,6 +72,25 @@ public class XExpandListView extends ExpandableListView implements AbsListView.O
         }
 
         requestLayout();
+
+
+        headerClickViews.clear();
+
+        int[] idsArr = listener.getIdsArr();
+
+        if (idsArr != null && idsArr.length > 0) {
+
+            for (int i = 0; i < idsArr.length; i++) {
+                View clickView = mHeaderView.findViewById(idsArr[i]);
+                boolean b = !headerClickViews.contains(clickView);
+                if (clickView != null && b) {
+                    headerClickViews.add(clickView);
+                }
+            }
+
+        }
+
+        this.listener = listener;
     }
 
     private void registerListener() {
@@ -108,6 +145,7 @@ public class XExpandListView extends ExpandableListView implements AbsListView.O
         switch (state) {
             case HoverAdapter.PINNED_HEADER_GONE: {
                 mHeaderViewVisible = false;
+                mGroupPos = -1;
                 break;
             }
 
@@ -119,7 +157,7 @@ public class XExpandListView extends ExpandableListView implements AbsListView.O
                 }
 
                 mHeaderViewVisible = true;
-
+                mGroupPos = groupPosition;
                 break;
             }
 
@@ -149,6 +187,7 @@ public class XExpandListView extends ExpandableListView implements AbsListView.O
                 }
 
                 mHeaderViewVisible = true;
+                mGroupPos = groupPosition;
                 break;
             }
         }
@@ -191,6 +230,89 @@ public class XExpandListView extends ExpandableListView implements AbsListView.O
         }
     }
 
+
+    List<View> isDonwIn = new ArrayList<>();
+    List<View> isUpIn = new ArrayList<>();
+    float downX = -1;
+    float downY = -1;
+    float upX = -1;
+    float upY = -1;
+
+    @SuppressLint("ClickableViewAccessibility")
+    @Override
+    public boolean onTouchEvent(MotionEvent ev) {
+
+        switch (ev.getAction()) {
+            case MotionEvent.ACTION_DOWN:
+                downX = ev.getX();
+                downY = ev.getY();
+
+                // 只要按下就清空集合信息
+                isUpIn.clear();
+                isDonwIn.clear();
+                for (int i = 0; i < headerClickViews.size(); i++) {
+                    View view = headerClickViews.get(i);
+                    // 判断触摸点是否在View中
+                    if (inArea(ev, view))
+                        isDonwIn.add(view);
+                }
+                break;
+            case MotionEvent.ACTION_MOVE:
+                super.onTouchEvent(ev);
+                break;
+            case MotionEvent.ACTION_UP:
+                upX = ev.getX();
+                upY = ev.getY();
+
+                // 如果按下有包含的view才进行循环
+                if (isDonwIn.size() > 0) {
+                    for (int i = 0; i < headerClickViews.size(); i++) {
+                        View view = headerClickViews.get(i);
+                        // 判断触摸点是否在View中
+                        if (inArea(ev, view))
+                            isUpIn.add(view);
+                    }
+                }
+                break;
+        }
+
+        // 点下 抬起坐标必须一样 点下 抬起 集合长度都要大于0 并且监听不能为空
+        if (downX == upX && downY == upY && isDonwIn.size() > 0 && isUpIn.size() > 0 && listener != null) {
+
+            for (int i = 0; i < isDonwIn.size(); i++) {
+                View downView = isDonwIn.get(i);
+                if (isUpIn.contains(downView)) {
+                    listener.onHoverItemClick(downView.getId(), mGroupPos);
+                }
+            }
+
+            return true;
+        } else {
+            return super.onTouchEvent(ev);
+        }
+    }
+
+    private boolean inArea(MotionEvent event, View mTouchArea) {
+
+        // 控件所占的大小
+        Rect rect = new Rect();
+        int[] location = new int[2];
+        mTouchArea.getLocationInWindow(location);
+        rect.left = location[0] + mTouchArea.getLeft();
+        rect.top = location[1] + mTouchArea.getTop();
+        rect.right = mTouchArea.getWidth() + location[0] + mTouchArea.getLeft();
+        rect.bottom = mTouchArea.getHeight() + location[1] + mTouchArea.getTop();
+        int left = mTouchArea.getLeft();
+        float rawX = event.getX();
+        float rawY = event.getY();
+        if (rect.contains((int) rawX, (int) rawY)) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+
     /**
      * 悬停 Adapter 接口 . 列表必须实现此接口 .
      */
@@ -221,6 +343,21 @@ public class XExpandListView extends ExpandableListView implements AbsListView.O
          * @param alpha
          */
         void updateHeader(View header, int groupPosition, int childPosition, int alpha);
+    }
+
+    public abstract class OnHoverClickListener {
+
+        private int idsArr[];
+
+        public OnHoverClickListener(int[] clickIds) {
+            idsArr = clickIds;
+        }
+
+        public int[] getIdsArr() {
+            return idsArr;
+        }
+
+        public abstract void onHoverItemClick(int id, int groupPositon);
     }
 }
 
