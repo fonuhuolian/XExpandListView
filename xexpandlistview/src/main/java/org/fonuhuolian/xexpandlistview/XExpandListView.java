@@ -90,6 +90,17 @@ public class XExpandListView extends ExpandableListView implements AbsListView.O
 
         }
 
+        boolean isHasHeader = false;
+        for (int i = 0; i < headerClickViews.size(); i++) {
+            if (mHeaderView == headerClickViews.get(i)) {
+                isHasHeader = true;
+                break;
+            }
+        }
+
+        if (!isHasHeader)
+            headerClickViews.add(mHeaderView);
+
         this.listener = listener;
     }
 
@@ -345,19 +356,5 @@ public class XExpandListView extends ExpandableListView implements AbsListView.O
         void updateHeader(View header, int groupPosition, int childPosition, int alpha);
     }
 
-    public abstract class OnHoverClickListener {
-
-        private int idsArr[];
-
-        public OnHoverClickListener(int[] clickIds) {
-            idsArr = clickIds;
-        }
-
-        public int[] getIdsArr() {
-            return idsArr;
-        }
-
-        public abstract void onHoverItemClick(int id, int groupPositon);
-    }
 }
 
