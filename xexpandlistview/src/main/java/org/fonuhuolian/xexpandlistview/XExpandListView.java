@@ -76,16 +76,20 @@ public class XExpandListView extends ExpandableListView implements AbsListView.O
 
         headerClickViews.clear();
 
-        int[] idsArr = listener.getIdsArr();
+        if (listener != null) {
 
-        if (idsArr != null && idsArr.length > 0) {
+            int[] idsArr = listener.getIdsArr();
 
-            for (int i = 0; i < idsArr.length; i++) {
-                View clickView = mHeaderView.findViewById(idsArr[i]);
-                boolean b = !headerClickViews.contains(clickView);
-                if (clickView != null && b) {
-                    headerClickViews.add(clickView);
+            if (idsArr != null && idsArr.length > 0) {
+
+                for (int i = 0; i < idsArr.length; i++) {
+                    View clickView = mHeaderView.findViewById(idsArr[i]);
+                    boolean b = !headerClickViews.contains(clickView);
+                    if (clickView != null && b) {
+                        headerClickViews.add(clickView);
+                    }
                 }
+
             }
 
         }
