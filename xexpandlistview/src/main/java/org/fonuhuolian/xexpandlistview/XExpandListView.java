@@ -94,15 +94,7 @@ public class XExpandListView extends ExpandableListView implements AbsListView.O
 
         }
 
-        boolean isHasHeader = false;
-        for (int i = 0; i < headerClickViews.size(); i++) {
-            if (mHeaderView == headerClickViews.get(i)) {
-                isHasHeader = true;
-                break;
-            }
-        }
-
-        if (!isHasHeader)
+        if (!headerClickViews.contains(mHeaderView))
             headerClickViews.add(mHeaderView);
 
         this.listener = listener;
@@ -292,11 +284,11 @@ public class XExpandListView extends ExpandableListView implements AbsListView.O
         }
 
         // 点下 抬起坐标必须一样 点下 抬起 集合长度都要大于0 并且监听不能为空
-        if (downX == upX && downY == upY && isDonwIn.size() > 0 && isUpIn.size() > 0 && listener != null) {
+        if (downX == upX && downY == upY && isDonwIn.size() > 0 && isUpIn.size() > 0) {
 
             for (int i = 0; i < isDonwIn.size(); i++) {
                 View downView = isDonwIn.get(i);
-                if (isUpIn.contains(downView)) {
+                if (isUpIn.contains(downView) && listener != null) {
                     listener.onHoverItemClick(downView.getId(), mGroupPos);
                 }
             }
@@ -317,7 +309,6 @@ public class XExpandListView extends ExpandableListView implements AbsListView.O
         rect.top = location[1] + mTouchArea.getTop();
         rect.right = mTouchArea.getWidth() + location[0] + mTouchArea.getLeft();
         rect.bottom = mTouchArea.getHeight() + location[1] + mTouchArea.getTop();
-        int left = mTouchArea.getLeft();
         float rawX = event.getX();
         float rawY = event.getY();
         if (rect.contains((int) rawX, (int) rawY)) {
